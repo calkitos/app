@@ -4,7 +4,7 @@ import json
 import warnings
 import os
 from pathlib import Path
-from text_cleaner import clean_features,lowercase_back_oneline,stick_wchars_to_digits
+from utils import clean_features,lowercase_back_oneline,stick_wchars_to_digits
 
 
 def read_alldocs(pdfs_folder)->list[PageObject]:
@@ -104,17 +104,37 @@ def get_measurement_unit_from_dict(source:dict)->dict:
     return units
 
 
-class Patient:
-    def __init__(self, patient:PatientLog):
-        self.patient_name:str = patient.get_patient_name()
-        self.patient_log:PatientLog = patient
+def analyze_pdfs(input_folder:Path,output_folder:Path):
+    all_docs = read_alldocs(pdfs_folder=input_folder)
+    new_folder = os.path.join(output_folder,Path("./raw"))
+    my_repository = dict()
+    clean_text = ""
 
+    if not os.path.isdir(new_folder): os.mkdir(new_folder) 
 
-class Visit:
-    def __init__(self):
-        self.d
+    for doc in all_docs:#Analize PDFs data
+        log = PatientLog(doc)
+        name = log.get_patient_name()
+        values = log.get_values()
+        units = get_measurement_unit_from_dict(values)
+        measurements = clean_features(values,units)
+        my_repository.update({name:measurements})
+        clean_text += "\n===\n\n" + log.data_as_text
 
+    txt_file_path = os.path.join(new_folder,"text.txt")
+    json_file_path = os.path.join(new_folder,"data.json")
 
+    with open(txt_file_path,"w",encoding="utf-8") as my_file:#Write a txt file
+        print("WRITING FILE...")
+        my_file.write(clean_text)
+        print(f"THE FILE {txt_file_path} HAS BEEN MODIFIED.")   
+
+    with open(json_file_path,"w",encoding="utf-8") as my_file:#Write a json file
+        print("WRITING FILE...")
+        json.dump(my_repository,my_file)
+        print(f"THE FILE {json_file_path} HAS BEEN MODIFIED.")        
+    
+    
 def main():
     pdfs_folder = Path("app_nutricion/data/raw/pdfs")
     raw_folder = Path("app_nutricion/data/raw")
@@ -133,7 +153,7 @@ def main():
         measurements = clean_features(values,units)
         my_repository.update({name:measurements})
 
-    print(my_repository)
+    # print(my_repository)
 
     with open(text_path,"w",encoding="utf-8") as my_file:
         print("WRITING FILE...")
@@ -142,5 +162,3 @@ def main():
 
 if __name__=="__main__":
     main()
-
-

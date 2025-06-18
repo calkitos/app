@@ -1,5 +1,5 @@
 import pytest
-from src.data.get_data import lowercase_back_oneline, one_liner, read_alldocs, look_for_feature, get_values, format_features, build_dictionary
+from app_nutricion.src.get_data import lowercase_back_oneline, one_liner, read_alldocs, look_for_feature, get_values, format_features, build_dictionary
 from pathlib import Path
 
 

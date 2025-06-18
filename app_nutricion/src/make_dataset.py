@@ -70,6 +70,26 @@ class MeasurementsDataFrame:
         all_measurements["medicion_id"] = range(100000,100000+len(all_measurements))
 
         return all_measurements
+    
+
+def create_csvs(work_directory:Path):
+    data_path = os.path.join(work_directory,Path("./raw/data.json"))
+    with open(data_path,"r") as my_file:
+        data = json.load(my_file)
+    
+    data = dict(data)
+
+    patients = PatientsDataFrame(data=data).patients
+    visits = VisitsDataFrame(data=data,patients=patients).visits
+    measures = MeasurementsDataFrame(data).dataframe
+
+    measures = measures.merge(patients, how="left", on="nombre")
+    measures = measures.merge(visits, how="left", on=["paciente_id","fecha"])
+    measures = measures[["visita_id","paciente_id","medida","valor"]]
+
+    patients.to_csv(os.path.join(work_directory,"pacientes.csv"),index=False, mode="w")
+    visits.to_csv(os.path.join(work_directory,"visitas.csv"),index=False, mode="w")
+    measures.to_csv(os.path.join(work_directory,"mediciones.csv"),index=False, mode="w")
         
 
 def main():
@@ -94,79 +114,3 @@ def main():
 
 if __name__=="__main__":
     main()
-
-    
-    
-
-
-
-# features:list[str] = []
-
-# measurement:dict = {
-#     "measurement_id":None,
-#     "visit_id":None,
-#     "feature":None,
-#     "unit":None,
-#     "value":None
-# }#[measurement_id:int, visit_id:int, feature:str, unit:str, value:float]
-
-# visit:dict = {
-#     "visit_id":None,
-#     "patient_id":None,
-#     "date":None
-# }# [visit_id:int, patient_id:int, date:date]
-
-# patient:dict = {
-#     "patient_id":None,
-#     "name":None,
-#     "gender":None,
-#     "age":None,
-#     "height_last":None,
-#     "weight_last":None,
-#     "patient_type":None
-# }#[patient_id:int, name:str, gender:str, age:int, height_last:float, weight_last:float, patient_type_id:int]
-
-# measurements = pd.DataFrame(None,columns=measurement.keys())
-
-# visits = pd.DataFrame(visit)
-
-# patients = pd.DataFrame(patient)
-
-# print(measurements)
-# print(visits)
-# print(patients)
-
-
-
-
-
-# # -*- coding: utf-8 -*-
-# import click
-# import logging
-# from pathlib import Path
-# from dotenv import find_dotenv, load_dotenv
-
-
-# @click.command()
-# @click.argument('input_filepath', type=click.Path(exists=True))
-# @click.argument('output_filepath', type=click.Path())
-# def main(input_filepath, output_filepath):
-#     """ Runs data processing scripts to turn raw data from (../raw) into
-#         cleaned data ready to be analyzed (saved in ../processed).
-#     """
-#     logger = logging.getLogger(__name__)
-#     logger.info('making final data set from raw data')
-
-
-# if __name__ == '__main__':
-#     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-#     logging.basicConfig(level=logging.INFO, format=log_fmt)
-
-#     # not used in this stub but often useful for finding various files
-#     project_dir = Path(__file__).resolve().parents[2]
-
-#     # find .env automagically by walking up directories until it's found, then
-#     # load up the .env entries as environment variables
-#     load_dotenv(find_dotenv())
-
-#     main()

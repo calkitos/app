@@ -2,6 +2,7 @@ import re
 import unicodedata
 from datetime import datetime
 
+
 def clean_text(text:str)->str:
     """
     Takes a text, replaces double line breaks with single ones,
@@ -25,7 +26,7 @@ def lowercase_back_oneline(text:str)->str:
 
     sub_composicion_corporal = re.compile(r"(?<=\d)\sCOMPOSICIÓN")
 
-    if sub_composicion_corporal.findall(text):
+    if sub_composicion_corporal.search(text):
         text = sub_composicion_corporal.sub("\nCOMPOSICIÓN", text)
 
     lines:list[str] = text.splitlines()
@@ -94,6 +95,7 @@ def parse_date(spanish_date:str):
     dia = int(dia)
     mes = int(mes)
     ano = int("20"+ano) if len(ano) == 2 else int(ano)
+    
     return datetime(ano,mes,dia).strftime("%Y-%m-%d") 
     
     
