@@ -85,7 +85,8 @@ def create_csvs(work_directory:Path):
 
     measures = measures.merge(patients, how="left", on="nombre")
     measures = measures.merge(visits, how="left", on=["paciente_id","fecha"])
-    measures = measures[["visita_id","paciente_id","medida","valor"]]
+    measures["medida_id"] = range(1000000, 1000000 + len(measures))
+    measures = measures[["medida_id","visita_id","paciente_id","medida","valor"]]
 
     patients.to_csv(os.path.join(work_directory,"pacientes.csv"),index=False, mode="w")
     visits.to_csv(os.path.join(work_directory,"visitas.csv"),index=False, mode="w")
